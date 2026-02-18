@@ -45,6 +45,13 @@ import LayoutDashboardIcon from "./LayoutDashboardIcon.vue";
 import UserGroupIcon from "./UserGroupIcon.vue";
 import BellIcon from "./BellIcon.vue";
 import BarChartIcon from "./BarChartIcon.vue";
+// Medical Device Management Icons
+import DeviceIcon from "./DeviceIcon.vue";
+import CategoryIcon from "./CategoryIcon.vue";
+import DepartmentIcon from "./DepartmentIcon.vue";
+import InspectionIcon from "./InspectionIcon.vue";
+import TicketIcon from "./TicketIcon.vue";
+import ReportIcon from "./ReportIcon.vue";
 
 export {
   BellIcon,
@@ -94,4 +101,11 @@ export {
   MailBox,
   SendIcon,
   DraftIcon,
+  // Medical Device Management Icons
+  DeviceIcon,
+  CategoryIcon,
+  DepartmentIcon,
+  InspectionIcon,
+  TicketIcon,
+  ReportIcon,
 };

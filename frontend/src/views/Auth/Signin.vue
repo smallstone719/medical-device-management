@@ -109,14 +109,14 @@
                         for="email"
                         class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
                       >
-                        Email<span class="text-error-500">*</span>
+                        Tên đăng nhập<span class="text-error-500">*</span>
                       </label>
                       <input
                         v-model="email"
-                        type="email"
+                        type="text"
                         id="email"
                         name="email"
-                        placeholder="info@gmail.com"
+                        placeholder="Nhập tên đăng nhập"
                         class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                       />
                     </div>
@@ -229,9 +229,16 @@
                     <div>
                       <button
                         type="submit"
-                        class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                        :disabled="loading"
+                        class="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Sign In
+                        <span v-if="loading" class="mr-2">
+                          <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </span>
+                        {{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}
                       </button>
                     </div>
                   </div>
@@ -274,23 +281,49 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import CommonGridShape from '@/components/common/CommonGridShape.vue'
 import FullScreenLayout from '@/components/layout/FullScreenLayout.vue'
+import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
+
+const router = useRouter()
+const { login } = useAuth()
+const { success, error: showError } = useToast()
+
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const keepLoggedIn = ref(false)
+const loading = ref(false)
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 
-const handleSubmit = () => {
-  // Handle form submission
-  console.log('Form submitted', {
-    email: email.value,
-    password: password.value,
-    keepLoggedIn: keepLoggedIn.value,
-  })
+const handleSubmit = async () => {
+  if (!email.value || !password.value) {
+    showError('Vui lòng nhập đầy đủ thông tin')
+    return
+  }
+
+  try {
+    loading.value = true
+    console.log('Attempting login...')
+    const response = await login(email.value, password.value)
+    console.log('Login successful:', response)
+    success('Đăng nhập thành công!')
+    
+    // Wait a bit for the success message to show
+    setTimeout(() => {
+      console.log('Redirecting to dashboard...')
+      router.push('/')
+    }, 500)
+  } catch (err: any) {
+    console.error('Login error:', err)
+    showError(err.message || 'Đăng nhập thất bại')
+  } finally {
+    loading.value = false
+  }
 }
 </script>

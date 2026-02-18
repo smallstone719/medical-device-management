@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import authService from '@/services/auth.service'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,10 +9,20 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'Ecommerce',
-      component: () => import('../views/Ecommerce.vue'),
+      name: 'Dashboard',
+      component: () => import('../views/Dashboard/Dashboard.vue'),
       meta: {
-        title: 'eCommerce Dashboard',
+        title: 'Dashboard',
+        requiresAuth: true,
+      },
+    },
+    {
+      path: '/devices',
+      name: 'Devices',
+      component: () => import('../views/Devices/DeviceList.vue'),
+      meta: {
+        title: 'Quản lý thiết bị',
+        requiresAuth: true,
       },
     },
     {
@@ -20,6 +31,7 @@ const router = createRouter({
       component: () => import('../views/Others/Calendar.vue'),
       meta: {
         title: 'Calendar',
+        requiresAuth: true,
       },
     },
     {
@@ -28,6 +40,7 @@ const router = createRouter({
       component: () => import('../views/Others/UserProfile.vue'),
       meta: {
         title: 'Profile',
+        requiresAuth: true,
       },
     },
     {
@@ -36,6 +49,7 @@ const router = createRouter({
       component: () => import('../views/Forms/FormElements.vue'),
       meta: {
         title: 'Form Elements',
+        requiresAuth: true,
       },
     },
     {
@@ -44,17 +58,24 @@ const router = createRouter({
       component: () => import('../views/Tables/BasicTables.vue'),
       meta: {
         title: 'Basic Tables',
+        requiresAuth: true,
       },
     },
     {
       path: '/line-chart',
       name: 'Line Chart',
       component: () => import('../views/Chart/LineChart/LineChart.vue'),
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/bar-chart',
       name: 'Bar Chart',
       component: () => import('../views/Chart/BarChart/BarChart.vue'),
+      meta: {
+        requiresAuth: true,
+      },
     },
     {
       path: '/alerts',
@@ -62,6 +83,7 @@ const router = createRouter({
       component: () => import('../views/UiElements/Alerts.vue'),
       meta: {
         title: 'Alerts',
+        requiresAuth: true,
       },
     },
     {
@@ -70,6 +92,7 @@ const router = createRouter({
       component: () => import('../views/UiElements/Avatars.vue'),
       meta: {
         title: 'Avatars',
+        requiresAuth: true,
       },
     },
     {
@@ -78,24 +101,25 @@ const router = createRouter({
       component: () => import('../views/UiElements/Badges.vue'),
       meta: {
         title: 'Badge',
+        requiresAuth: true,
       },
     },
-
     {
       path: '/buttons',
       name: 'Buttons',
       component: () => import('../views/UiElements/Buttons.vue'),
       meta: {
         title: 'Buttons',
+        requiresAuth: true,
       },
     },
-
     {
       path: '/images',
       name: 'Images',
       component: () => import('../views/UiElements/Images.vue'),
       meta: {
         title: 'Images',
+        requiresAuth: true,
       },
     },
     {
@@ -104,6 +128,7 @@ const router = createRouter({
       component: () => import('../views/UiElements/Videos.vue'),
       meta: {
         title: 'Videos',
+        requiresAuth: true,
       },
     },
     {
@@ -112,9 +137,9 @@ const router = createRouter({
       component: () => import('../views/Pages/BlankPage.vue'),
       meta: {
         title: 'Blank',
+        requiresAuth: true,
       },
     },
-
     {
       path: '/error-404',
       name: '404 Error',
@@ -123,13 +148,13 @@ const router = createRouter({
         title: '404 Error',
       },
     },
-
     {
       path: '/signin',
       name: 'Signin',
       component: () => import('../views/Auth/Signin.vue'),
       meta: {
-        title: 'Signin',
+        title: 'Đăng nhập',
+        guest: true,
       },
     },
     {
@@ -137,15 +162,36 @@ const router = createRouter({
       name: 'Signup',
       component: () => import('../views/Auth/Signup.vue'),
       meta: {
-        title: 'Signup',
+        title: 'Đăng ký',
+        guest: true,
       },
     },
   ],
 })
 
-export default router
-
 router.beforeEach((to, from, next) => {
-  document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
-  next()
+  const isAuthenticated = authService.isAuthenticated()
+  
+  document.title = `${to.meta.title || 'Page'} | Medical Device Management`
+
+  console.log('Router guard:', { 
+    to: to.path, 
+    from: from.path, 
+    isAuthenticated,
+    requiresAuth: to.meta.requiresAuth,
+    guest: to.meta.guest
+  })
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    console.log('Redirecting to signin - not authenticated')
+    next('/signin')
+  } else if (to.meta.guest && isAuthenticated) {
+    console.log('Redirecting to home - already authenticated')
+    next('/')
+  } else {
+    console.log('Allowing navigation')
+    next()
+  }
 })
+
+export default router
