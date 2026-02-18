@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Quản lý thiết bị y tế - Khoa Chẩn đoán hình ảnh">
+  <title>Thiết bị - Quản lý Thiết bị Y tế</title>
+  <link rel="icon" href="/images/vicas.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+  <style>
+    .ts-wrapper { border-radius: 8px; padding: 0px;}
+    .ts-control { border-radius: 8px !important; padding: 8px 12px !important; }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- Navigation (rendered by navbar.js) -->
+    <div id="navbar-container"></div>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+              Danh sách Thiết bị
+            </h1>
+            <p>Quản lý thiết bị y tế trong khoa Chẩn đoán hình ảnh</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="btn btn-secondary btn-lg" onclick="DeviceManager.showImportModal()" id="importBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+                <path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/>
+              </svg>
+              Nhập từ Excel
+            </button>
+            <button class="btn btn-primary btn-lg" onclick="DeviceManager.showDeviceForm()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Thêm thiết bị
+            </button>
+          </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="form-row">
+            <div class="form-group" style="margin-bottom: 0;">
+              <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm thiết bị...">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <select class="form-control" id="categoryFilter">
+                <option value="">Tất cả loại</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <select class="form-control" id="departmentFilter">
+                <option value="">Tất cả khoa phòng</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <select class="form-control" id="statusFilter">
+                <option value="">Tất cả trạng thái</option>
+                <option value="active">Hoạt động</option>
+                <option value="maintenance">Bảo trì</option>
+                <option value="inactive">Ngừng hoạt động</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <select class="form-control" id="locationFilter">
+                <option value="">Tất cả vị trí</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Device Table -->
+        <div class="card">
+          <div id="deviceList">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+          
+          <!-- Pagination -->
+          <div class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-top: 1px solid var(--border-color); display: none;" id="paginationContainer">
+            <div class="limit-selector" style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-muted);">
+              Hiển thị:
+              <select id="limitSelect" class="form-control" style="width: auto; padding: 4px 8px; height: auto;">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+            <div class="page-nav" style="display: flex; align-items: center; gap: 12px;">
+               <button class="btn btn-sm btn-secondary" id="prevPage" disabled>
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
+               </button>
+               <span id="pageInfo" style="font-size: 0.9rem; font-weight: 500;">Trang 1 / 1 (0 thiết bị)</span>
+               <button class="btn btn-sm btn-secondary" id="nextPage" disabled>
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="/js/app.js"></script>
+  <script src="/js/navbar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+  <script>
+    // Auth check - server-side verification
+    (async function() {
+      const result = await Auth.verify();
+      if (!result.success) {
+        if (result.error === 'account_locked') {
+          alert(result.message);
+        }
+        window.location.href = '/';
+        return;
+      }
+      
+      // Check page access - viewer cannot access devices
+      const accessResult = await Auth.checkPageAccess('devices.html');
+      if (!accessResult.allowed) {
+        alert(accessResult.message);
+        window.location.href = '/inspections.html';
+        return;
+      }
+      
+      // Initialize navbar with user
+      Navbar.init(Auth.user);
+      
+      // Load devices after auth verified
+      loadDevices();
+      
+      // Hide Add Device & Import for technicians
+      if (Auth.user.role === 'technician') {
+        const headerBtns = document.querySelector('.page-header > div:last-child');
+        if (headerBtns) headerBtns.style.display = 'none';
+        
+        // Hide empty state button if exists (will run after render)
+        const observer = new MutationObserver(() => {
+          const emptyBtn = document.querySelector('.empty-state button');
+          if (emptyBtn) emptyBtn.style.display = 'none';
+        });
+        observer.observe(document.getElementById('deviceList'), { childList: true });
+      }
+    })();
+    
+    let allDevices = [];
+    let categories = [];
+    let departments = [];
+    let selectedDeviceIds = new Set();
+    
+    // Pagination state
+    let currentPage = 1;
+    let currentLimit = 20;
+    let totalPages = 1;
+    let totalItems = 0;
+    
+    async function loadDevices() {
+      // Build query params
+      const params = new URLSearchParams();
+      params.append('page', currentPage);
+      params.append('limit', currentLimit);
+      
+      // Add filters
+      const search = document.getElementById('searchInput').value;
+      const status = document.getElementById('statusFilter').value;
+      const location = document.getElementById('locationFilter').value;
+      const category = document.getElementById('categoryFilter').value;
+      const department = document.getElementById('departmentFilter').value;
+      
+      if (search) params.append('search', search);
+      if (status) params.append('status', status);
+      if (location) params.append('location', location);
+      if (category) params.append('category_id', category);
+      if (department) params.append('department_id', department);
+
+      // Auth role filter
+      if (Auth.user.role === 'inspector') {
+        params.append('department_id', Auth.user.department_id);
+      }
+      
+      try {
+        const result = await API.get(`/api/devices?${params.toString()}`);
+        
+        if (result.meta) {
+          allDevices = result.data;
+          totalItems = result.meta.total;
+          totalPages = result.meta.totalPages;
+          currentPage = result.meta.page;
+          updatePaginationUI();
+        } else {
+          // Fallback if server doesn't support pagination yet
+          allDevices = Array.isArray(result) ? result : result.data;
+          totalItems = allDevices.length;
+          totalPages = 1;
+        }
+
+        // Load meta data only once
+        if (categories.length === 0) {
+            [categories, departments] = await Promise.all([
+                API.get('/api/categories'),
+                API.get('/api/departments')
+            ]);
+            updateFilterOptions(); // Only update dropdown options once to avoid resetting selection
+        }
+        
+        renderDevices();
+        
+      } catch (error) {
+        console.error("Load devices error:", error);
+        Toast.error("Lỗi tải danh sách thiết bị");
+      }
+    }
+    
+    function updatePaginationUI() {
+      const container = document.getElementById('paginationContainer');
+      container.style.display = 'flex';
+      
+      document.getElementById('pageInfo').textContent = `Trang ${currentPage} / ${totalPages} (${totalItems} thiết bị)`;
+      document.getElementById('prevPage').disabled = currentPage <= 1;
+      document.getElementById('nextPage').disabled = currentPage >= totalPages;
+    }
+    
+    function updateFilterOptions() {
+      // We can't easily get all locations from server without a separate API
+      // For now, keep location filter if possible, or maybe simplify.
+      // Current server-side location filter is exact match.
+      // Ideally we would fetch distinct locations from API.
+      // For now, let's skip updating location filter dynamically or just manual entry 
+      // (User UI has a dropdown, we need to populate it). 
+      
+      // Standard filters
+      document.getElementById('categoryFilter').innerHTML = '<option value="">Tất cả loại</option>' + 
+        categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+      document.getElementById('departmentFilter').innerHTML = '<option value="">Tất cả khoa phòng</option>' + 
+        departments.map(dept => `<option value="${dept.id}">${dept.name}</option>`).join('');
+        
+      // Location: Hard to populate without getting ALL devices first. 
+      // Compromise: We might lose the dynamic location list if we don't fetch all.
+      // Let's assume user accepts static/existing locations or we fetch a distinct list endpoint.
+      // For strict correctness, we'll leave it empty or pre-defined if possible. 
+      // Or, we can fetch JUST locations?
+      // Let's rely on what we have in the current page or leave it blank?
+      // Actually, let's try to populate it from *loaded* devices as a fallback, 
+      // though it will only show locations on current page. Better than nothing.
+      const locations = [...new Set(allDevices.map(d => d.location).filter(Boolean))];
+       document.getElementById('locationFilter').innerHTML = '<option value="">Tất cả vị trí</option>' + 
+        locations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
+    }
+    
+    function renderDevices() {
+      // Local filtering is NO LONGER needed if server does it.
+      // However, if we fallback to non-paginated, we might need it?
+      // But we forced pagination params.
+      
+      const filtered = allDevices; // Already filtered by server
+      
+      const container = document.getElementById('deviceList');
+      // ... same rendering logic ...
+      
+      if (filtered.length === 0) {
+         // ... empty state ...
+         container.innerHTML = `
+           <div class="empty-state">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+               <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+               <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+             </svg>
+             <h3>Không tìm thấy thiết bị nào</h3>
+           </div>
+         `;
+         if (totalItems === 0 && !document.getElementById('searchInput').value) {
+            // Real empty state (no data at all)
+             container.innerHTML = `
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+                <h3>Chưa có thiết bị nào</h3>
+                <p>Hãy thêm thiết bị đầu tiên để bắt đầu quản lý</p>
+                <button class="btn btn-primary" onclick="DeviceManager.showDeviceForm()">Thêm thiết bị</button>
+              </div>
+            `;
+         }
+         return;
+      }
+      
+      container.innerHTML = `
+        <div class="bulk-action-bar" id="bulkActionBar" style="display:none;">
+          <div class="bulk-action-info">
+            <span id="selectedCount">0</span> thiết bị được chọn
+          </div>
+          <div class="bulk-action-buttons">
+            <button class="btn btn-secondary btn-sm" onclick="clearSelection()">
+              Bỏ chọn tất cả
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="printSelectedQR()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              In mã QR
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteSelectedDevices()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+              </svg>
+              Xóa
+            </button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th style="width:40px; text-align:center;">
+                  <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)" style="width:16px; height:16px; cursor:pointer; accent-color: var(--primary-color);">
+                </th>
+                <th>Tên thiết bị</th>
+                <th>Loại</th>
+                <th>Model</th>
+                <th>Vị trí</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(device => `
+                <tr>
+                  <td style="text-align:center;">
+                    <input type="checkbox" class="device-checkbox" value="${device.id}" ${selectedDeviceIds.has(device.id) ? 'checked' : ''} onchange="toggleDeviceSelect('${device.id}', this.checked)" style="width:16px; height:16px; cursor:pointer; accent-color: var(--primary-color);">
+                  </td>
+                  <td>
+                    <strong>${device.name}</strong>
+                    ${device.manufacturer ? `<br><small style="color: var(--text-muted);">${device.manufacturer}</small>` : ''}
+                  </td>
+                  <td>${device.category_name ? `<span class="badge" style="background: ${device.category_color}20; color: ${device.category_color};">${device.category_name}</span>` : '-'}</td>
+                  <td>${device.model || '-'}</td>
+                  <td>${device.location || '-'}</td>
+                  <td>${DeviceManager.getStatusBadge(device.status)}</td>
+                  <td>
+                    <div class="table-actions">
+                      <button class="btn btn-icon btn-ghost" onclick="DeviceManager.showQRCode('${device.id}')" title="QR">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                        </svg>
+                      </button>
+                      <button class="btn btn-icon btn-ghost" onclick='DeviceManager.showDeviceForm(${JSON.stringify(device).replace(/'/g, "\\\'")})'  title="Sửa">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                      </button>
+                      ${Auth.user.role !== 'technician' ? `
+                      <button class="btn btn-icon btn-ghost" style="color: var(--danger-color);" onclick="DeviceManager.deleteDevice('${device.id}')" title="Xóa">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                          <polyline points="3 6 5 6 21 6"/>
+                          <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                        </svg>
+                      </button>
+                      ` : ''}
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div style="padding: 12px 16px; text-align: right; color: var(--text-muted); font-size: 0.875rem; border-top: 1px solid var(--border-color);">
+          Hiển thị ${filtered.length} / ${totalItems} thiết bị
+        </div>
+      `;
+      
+      // Update selection UI state
+      updateSelectionBar();
+    }
+    
+
+    
+    // Event Listeners for Pagination & Filter
+    document.getElementById('searchInput').addEventListener('input', Utils.debounce(() => { currentPage = 1; loadDevices(); }, 500)); // Server search needs debounce
+    document.getElementById('statusFilter').addEventListener('change', () => { currentPage = 1; loadDevices(); });
+    document.getElementById('locationFilter').addEventListener('change', () => { currentPage = 1; loadDevices(); });
+    document.getElementById('categoryFilter').addEventListener('change', () => { currentPage = 1; loadDevices(); });
+    document.getElementById('departmentFilter').addEventListener('change', () => { currentPage = 1; loadDevices(); });
+
+    document.getElementById('prevPage').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadDevices();
+      }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', () => {
+      if (currentPage < totalPages) {
+        currentPage++;
+        loadDevices();
+      }
+    });
+
+    document.getElementById('limitSelect').addEventListener('change', (e) => {
+        currentLimit = parseInt(e.target.value);
+        currentPage = 1;
+        loadDevices();
+    });
+
+
+    // ============ Selection Management ============
+    function toggleDeviceSelect(deviceId, checked) {
+      if (checked) {
+        selectedDeviceIds.add(deviceId);
+      } else {
+        selectedDeviceIds.delete(deviceId);
+      }
+      updateSelectionBar();
+    }
+
+    function toggleSelectAll(checked) {
+      allDevices.forEach(d => {
+        if (checked) {
+          selectedDeviceIds.add(d.id);
+        } else {
+          selectedDeviceIds.delete(d.id);
+        }
+      });
+      document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = checked);
+      updateSelectionBar();
+    }
+
+    function clearSelection() {
+      selectedDeviceIds.clear();
+      document.querySelectorAll('.device-checkbox').forEach(cb => cb.checked = false);
+      const selectAll = document.getElementById('selectAllCheckbox');
+      if (selectAll) selectAll.checked = false;
+      updateSelectionBar();
+    }
+
+    function updateSelectionBar() {
+      const bar = document.getElementById('bulkActionBar');
+      const count = document.getElementById('selectedCount');
+      if (!bar) return;
+      
+      if (selectedDeviceIds.size > 0) {
+        bar.style.display = 'flex';
+        count.textContent = selectedDeviceIds.size;
+      } else {
+        bar.style.display = 'none';
+      }
+
+      // Update select-all checkbox state
+      const selectAll = document.getElementById('selectAllCheckbox');
+      if (selectAll) {
+        const pageIds = allDevices.map(d => d.id);
+        const allOnPageSelected = pageIds.length > 0 && pageIds.every(id => selectedDeviceIds.has(id));
+        selectAll.checked = allOnPageSelected;
+        selectAll.indeterminate = selectedDeviceIds.size > 0 && !allOnPageSelected;
+      }
+    }
+
+    async function printSelectedQR() {
+      if (selectedDeviceIds.size === 0) {
+        Toast.warning('Vui lòng chọn ít nhất một thiết bị');
+        return;
+      }
+
+      Toast.info(`Đang tạo mã QR cho ${selectedDeviceIds.size} thiết bị...`);
+
+      try {
+        // Fetch QR codes for all selected devices
+        const qrPromises = Array.from(selectedDeviceIds).map(id =>
+          API.get(`/api/devices/${id}/qrcode`)
+        );
+        const qrResults = await Promise.all(qrPromises);
+
+        // Open print window
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+          Toast.error('Trình duyệt chặn popup. Vui lòng cho phép popup.');
+          return;
+        }
+
+        const qrCardsHtml = qrResults.map(qr => `
+          <div class="qr-card">
+            <img src="${qr.qrcode}" alt="QR">
+            <div class="qr-info">
+              <h4>${qr.device.name}</h4>
+              <p>${qr.device.model || ''}</p>
+              <p>${qr.device.serial_number || ''}</p>
+              <p class="qr-location">${qr.device.location || ''}</p>
+            </div>
+          </div>
+        `).join('');
+
+        printWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>In mã QR thiết bị</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 10mm;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #1e293b;
+    }
+    .print-header {
+      text-align: center;
+      padding: 8px 0 12px;
+      border-bottom: 2px solid #e2e8f0;
+      margin-bottom: 12px;
+    }
+    .print-header h1 {
+      font-size: 16pt;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .print-header p {
+      font-size: 9pt;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .qr-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .qr-card {
+      width: 60mm;
+      height: 90mm;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6mm 4mm;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .qr-card img {
+      width: 40mm;
+      height: 40mm;
+      object-fit: contain;
+    }
+    .qr-info {
+      text-align: center;
+      margin-top: 4mm;
+      width: 100%;
+      overflow: hidden;
+    }
+    .qr-info h4 {
+      font-size: 9pt;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .qr-info p {
+      font-size: 7.5pt;
+      color: #475569;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .qr-location {
+      font-size: 7pt !important;
+      color: #94a3b8 !important;
+      margin-top: 2px;
+    }
+    .no-print { margin: 20px; text-align: center; }
+    .no-print button {
+      padding: 10px 24px;
+      background: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      margin: 0 8px;
+    }
+    .no-print button.secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    @media print {
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <button onclick="window.print()">🖨️ In ngay</button>
+    <button class="secondary" onclick="window.close()">Đóng</button>
+  </div>
+  <div class="print-header">
+    <h1>Mã QR Thiết bị y tế</h1>
+    <p>Tổng: ${qrResults.length} thiết bị • Ngày in: ${new Date().toLocaleDateString('vi-VN')}</p>
+  </div>
+  <div class="qr-grid">
+    ${qrCardsHtml}
+  </div>
+</body>
+</html>
+        `);
+        printWindow.document.close();
+
+        // Auto-trigger print after content loads
+        printWindow.onload = () => {
+          printWindow.focus();
+          printWindow.print();
+        };
+      } catch (error) {
+        console.error('Print QR error:', error);
+        Toast.error('Lỗi tạo mã QR: ' + error.message);
+      }
+    }
+
+    async function deleteSelectedDevices() {
+      if (selectedDeviceIds.size === 0) {
+        Toast.warning('Vui lòng chọn ít nhất một thiết bị');
+        return;
+      }
+
+      const count = selectedDeviceIds.size;
+      if (!confirm(`Bạn có chắc chắn muốn xóa ${count} thiết bị đã chọn?\n\nThao tác này không thể hoàn tác!`)) {
+        return;
+      }
+
+      try {
+        Toast.info(`Đang xóa ${count} thiết bị...`);
+        const deletePromises = Array.from(selectedDeviceIds).map(id =>
+          API.delete(`/api/devices/${id}`)
+        );
+        await Promise.all(deletePromises);
+
+        Toast.success(`Đã xóa ${count} thiết bị thành công`);
+        selectedDeviceIds.clear();
+        loadDevices();
+      } catch (error) {
+        console.error('Bulk delete error:', error);
+        Toast.error('Lỗi xóa thiết bị: ' + error.message);
+      }
+    }
+
+  </script>
+</body>
+</html>

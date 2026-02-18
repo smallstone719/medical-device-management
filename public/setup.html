@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cài đặt ban đầu - Device Management</title>
+    <link rel="icon" href="/images/vicas.ico">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --primary-light: #818cf8;
+        --bg-gradient-start: #0f172a;
+        --bg-gradient-end: #1e293b;
+        --card-bg: rgba(30, 41, 59, 0.8);
+        --card-border: rgba(148, 163, 184, 0.1);
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --success: #22c55e;
+        --error: #ef4444;
+        --warning: #f59e0b;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: linear-gradient(
+          135deg,
+          var(--bg-gradient-start),
+          var(--bg-gradient-end)
+        );
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        color: var(--text-primary);
+      }
+
+      .setup-container {
+        width: 100%;
+        max-width: 480px;
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .logo-section {
+        text-align: center;
+        margin-bottom: 32px;
+      }
+
+      .logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-light)
+        );
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 16px;
+        box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+      }
+
+      .logo svg {
+        width: 48px;
+        height: 48px;
+        fill: white;
+      }
+
+      .logo-section h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        background: linear-gradient(
+          135deg,
+          var(--text-primary),
+          var(--primary-light)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .logo-section p {
+        color: var(--text-secondary);
+        font-size: 14px;
+      }
+
+      .setup-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+
+      .step-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .step {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .step.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .step.completed {
+        background: var(--success);
+        color: white;
+      }
+
+      .step.pending {
+        background: rgba(148, 163, 184, 0.2);
+        color: var(--text-muted);
+      }
+
+      .step-line {
+        width: 40px;
+        height: 2px;
+        background: rgba(148, 163, 184, 0.2);
+      }
+
+      .step-line.completed {
+        background: var(--success);
+      }
+
+      .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-align: center;
+      }
+
+      .section-subtitle {
+        color: var(--text-secondary);
+        font-size: 14px;
+        text-align: center;
+        margin-bottom: 24px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 14px 16px;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        color: var(--text-primary);
+        font-size: 15px;
+        font-family: inherit;
+        transition: all 0.2s ease;
+      }
+
+      .form-group input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      }
+
+      .form-group input::placeholder {
+        color: var(--text-muted);
+      }
+
+      .domain-preview {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 24px;
+      }
+
+      .domain-preview label {
+        display: block;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+
+      .domain-value {
+        font-family: "SF Mono", "Monaco", "Consolas", monospace;
+        font-size: 14px;
+        color: var(--primary-light);
+        word-break: break-all;
+      }
+
+      .domain-edit {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 12px;
+      }
+
+      .domain-edit input {
+        flex: 1;
+        padding: 10px 12px;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: "SF Mono", "Monaco", "Consolas", monospace;
+      }
+
+      .domain-edit input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      .domain-suffix {
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-secondary {
+        background: rgba(148, 163, 184, 0.1);
+        color: var(--text-secondary);
+        border: 1px solid var(--card-border);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(148, 163, 184, 0.2);
+      }
+
+      .btn svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .error-message {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 10px;
+        padding: 12px 16px;
+        color: var(--error);
+        font-size: 13px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .success-section {
+        text-align: center;
+        display: none;
+      }
+
+      .success-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--success), #16a34a);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        animation: scaleIn 0.4s ease-out;
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0);
+        }
+        to {
+          transform: scale(1);
+        }
+      }
+
+      .success-icon svg {
+        width: 40px;
+        height: 40px;
+        fill: white;
+      }
+
+      .success-section h2 {
+        font-size: 22px;
+        margin-bottom: 12px;
+      }
+
+      .success-section p {
+        color: var(--text-secondary);
+        margin-bottom: 24px;
+      }
+
+      .url-box {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 24px;
+      }
+
+      .url-box label {
+        display: block;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+
+      .url-box a {
+        color: var(--primary-light);
+        text-decoration: none;
+        font-family: "SF Mono", "Monaco", "Consolas", monospace;
+        font-size: 14px;
+        word-break: break-all;
+      }
+
+      .url-box a:hover {
+        text-decoration: underline;
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+.hidden {
+        display: none !important;
+      }
+
+      .demo-data-section {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        cursor: pointer;
+        margin-bottom: 12px;
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary);
+        cursor: pointer;
+        margin: 0;
+      }
+
+      .checkbox-text {
+        color: var(--text-primary);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.4;
+      }
+
+      .demo-info {
+        margin-left: 32px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(148, 163, 184, 0.1);
+      }
+
+      .demo-info p {
+        color: var(--text-secondary);
+        font-size: 12px;
+        margin: 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .domain-options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .domain-option {
+        background: rgba(15, 23, 42, 0.6);
+        border: 2px solid var(--card-border);
+        border-radius: 14px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        position: relative;
+      }
+
+      .domain-option:hover {
+        border-color: rgba(99, 102, 241, 0.3);
+        background: rgba(15, 23, 42, 0.8);
+      }
+
+      .domain-option.selected {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.08);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      }
+
+      .domain-option-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 4px;
+      }
+
+      .domain-option-header input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+        cursor: pointer;
+      }
+
+      .domain-option-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .domain-option-badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-weight: 600;
+      }
+
+      .badge-free {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+      }
+
+      .badge-pro {
+        background: rgba(99, 102, 241, 0.15);
+        color: var(--primary-light);
+      }
+
+      .domain-option-desc {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-left: 30px;
+        line-height: 1.5;
+      }
+
+      .domain-option-fields {
+        margin-top: 12px;
+        margin-left: 30px;
+        display: none;
+      }
+
+      .domain-option.selected .domain-option-fields {
+        display: block;
+      }
+
+      .custom-domain-input {
+        width: 100%;
+        padding: 12px 14px;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: "SF Mono", "Monaco", "Consolas", monospace;
+        transition: all 0.2s ease;
+      }
+
+      .custom-domain-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      }
+
+      .custom-domain-hint {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 8px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 480px) {
+        .setup-card {
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="setup-container">
+      <div class="logo-section">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l4.59-4.58L18 11l-6 6z"
+            />
+          </svg>
+        </div>
+        <h1>Device Management</h1>
+        <p>Hệ thống quản lý thiết bị y tế</p>
+      </div>
+
+      <div class="setup-card">
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step active" id="step1">1</div>
+          <div class="step-line" id="line1"></div>
+          <div class="step pending" id="step2">2</div>
+          <div class="step-line" id="line2"></div>
+          <div class="step pending" id="step3">✓</div>
+        </div>
+
+        <!-- Step 1: Domain Setup -->
+        <div id="domainSection">
+          <h3 class="section-title">Cấu hình Tên miền</h3>
+          <p class="section-subtitle">
+            Chọn cách truy cập hệ thống từ bên ngoài
+          </p>
+
+          <div class="domain-options">
+            <!-- Option 1: Free nport -->
+            <div class="domain-option selected" onclick="selectDomainType('nport')">
+              <div class="domain-option-header">
+                <input type="radio" name="domainType" value="nport" checked>
+                <span class="domain-option-title">Nport (Miễn phí)</span>
+                <span class="domain-option-badge badge-free">MIỄN PHÍ</span>
+              </div>
+              <p class="domain-option-desc">Sử dụng tên miền miễn phí qua dịch vụ nport.link, không cần cấu hình thêm.</p>
+              <div class="domain-option-fields">
+                <div class="domain-edit">
+                  <input
+                    type="text"
+                    id="subdomainInput"
+                    placeholder="vicas-123456"
+                    maxlength="30"
+                  />
+                  <span class="domain-suffix">.nport.link</span>
+                </div>
+                <p class="custom-domain-hint">Nhập tên miền phụ bạn muốn (ví dụ: benhvien-a)</p>
+              </div>
+            </div>
+
+            <!-- Option 2: Custom Domain -->
+            <div class="domain-option" onclick="selectDomainType('custom')">
+              <div class="domain-option-header">
+                <input type="radio" name="domainType" value="custom">
+                <span class="domain-option-title">Tên miền tùy chọn</span>
+                <span class="domain-option-badge badge-pro">TÙY CHỌN</span>
+              </div>
+              <p class="domain-option-desc">Sử dụng tên miền riêng của bạn (cần tự trỏ DNS về server).</p>
+              <div class="domain-option-fields">
+                <input
+                  type="text"
+                  id="customDomainInput"
+                  class="custom-domain-input"
+                  placeholder="devices.benhvien.vn"
+                />
+                <p class="custom-domain-hint">Nhập tên miền đầy đủ (vd: devices.benhvien.vn). Bạn cần tự trỏ DNS A record hoặc CNAME về IP server của mình.</p>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn btn-primary" id="nextToAdminBtn">
+            Tiếp tục
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Step 2: Admin Setup -->
+        <div id="adminSection" class="hidden">
+          <h3 class="section-title">Tạo tài khoản Admin</h3>
+          <p class="section-subtitle">
+            Tài khoản này sẽ quản lý toàn bộ hệ thống
+          </p>
+
+          <div class="error-message" id="errorMessage"></div>
+
+          <form id="adminForm">
+            <div class="form-group">
+              <label>Họ và tên</label>
+              <input
+                type="text"
+                id="fullName"
+                placeholder="Nguyễn Văn A"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Tên đăng nhập</label>
+              <input
+                type="text"
+                id="username"
+                placeholder="admin"
+                required
+                pattern="[a-zA-Z0-9_]+"
+                title="Chỉ chứa chữ, số và dấu gạch dưới"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Mật khẩu</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="••••••••"
+                required
+                minlength="6"
+              />
+            </div>
+
+<div class="form-group">
+              <label>Xác nhận mật khẩu</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <div class="demo-data-section">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="importDemoData">
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Import dữ liệu demo (thiết bị y tế và lịch sử kiểm tra)</span>
+                </label>
+                <div class="demo-info">
+                  <p>📱 10 thiết bị y tế mẫu</p>
+                  <p>📋 150+ lịch sử kiểm tra</p>
+                  <p>🏥 Phòng Chẩn đoán hình ảnh</p>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+              <span id="submitText">Hoàn tất cài đặt</span>
+              <div class="spinner hidden" id="submitSpinner"></div>
+            </button>
+          </form>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div id="successSection" class="success-section">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            </svg>
+          </div>
+          <h2>Cài đặt hoàn tất!</h2>
+          <p>Hệ thống đã sẵn sàng sử dụng</p>
+
+          <div class="url-box">
+            <label>Truy cập từ bên ngoài (Sau 10 giây nữa)</label>
+            <a href="#" id="publicUrl" target="_blank"></a>
+          </div>
+
+          <div class="url-box">
+            <label>Truy cập nội bộ</label>
+            <a href="#" id="localUrl" target="_blank"></a>
+          </div>
+
+          <button type="button" class="btn btn-primary" id="loginBtn">
+            Đăng nhập ngay
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentDomain = "";
+      let currentDomainType = "nport";
+      let tunnelUrl = "";
+
+      // Domain type selection
+      function selectDomainType(type) {
+        currentDomainType = type;
+        document.querySelectorAll('.domain-option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+        document.querySelector(`input[name="domainType"][value="${type}"]`).checked = true;
+        document.querySelector(`input[name="domainType"][value="${type}"]`).closest('.domain-option').classList.add('selected');
+      }
+
+      // Check if setup is needed
+      async function checkSetupStatus() {
+        try {
+          const res = await fetch("/api/setup/status");
+          const data = await res.json();
+
+          if (!data.needsSetup) {
+            // Already setup, redirect to login
+            window.location.href = "/index.html";
+            return;
+          }
+
+          // Get tunnel info
+          const tunnelRes = await fetch("/api/tunnel/info");
+          const tunnelData = await tunnelRes.json();
+
+          if (tunnelData.url) {
+            tunnelUrl = tunnelData.url;
+            currentDomain =
+              tunnelData.subdomain ||
+              "vicas-" + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById("subdomainInput").value = currentDomain;
+          } else {
+            currentDomain =
+              "vicas-" + Math.floor(100000 + Math.random() * 900000);
+            document.getElementById("subdomainInput").value = currentDomain;
+          }
+        } catch (error) {
+          console.error("Error checking setup status:", error);
+          currentDomain =
+            "vicas-" + Math.floor(100000 + Math.random() * 900000);
+          document.getElementById("subdomainInput").value = currentDomain;
+        }
+      }
+
+      // Step navigation
+      document
+        .getElementById("nextToAdminBtn")
+        .addEventListener("click", () => {
+          if (currentDomainType === 'nport') {
+            const subdomain = document
+              .getElementById("subdomainInput")
+              .value.trim();
+            if (!subdomain) {
+              alert("Vui lòng nhập subdomain");
+              return;
+            }
+            currentDomain = subdomain;
+          } else {
+            const customDomain = document
+              .getElementById("customDomainInput")
+              .value.trim();
+            if (!customDomain) {
+              alert("Vui lòng nhập tên miền tùy chọn");
+              return;
+            }
+          }
+
+          // Update UI
+          document.getElementById("step1").classList.remove("active");
+          document.getElementById("step1").classList.add("completed");
+          document.getElementById("line1").classList.add("completed");
+          document.getElementById("step2").classList.remove("pending");
+          document.getElementById("step2").classList.add("active");
+
+          document.getElementById("domainSection").classList.add("hidden");
+          document.getElementById("adminSection").classList.remove("hidden");
+        });
+
+      // Form submission
+      document
+        .getElementById("adminForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const fullName = document.getElementById("fullName").value.trim();
+          const username = document.getElementById("username").value.trim();
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirmPassword").value;
+          const importDemoData = document.getElementById("importDemoData").checked;
+
+          // Validation
+          if (password !== confirmPassword) {
+            showError("Mật khẩu xác nhận không khớp");
+            return;
+          }
+
+          if (password.length < 6) {
+            showError("Mật khẩu phải có ít nhất 6 ký tự");
+            return;
+          }
+
+          // Show loading
+          document.getElementById("submitText").classList.add("hidden");
+          document.getElementById("submitSpinner").classList.remove("hidden");
+          document.getElementById("submitBtn").disabled = true;
+
+          try {
+            const bodyData = {
+              full_name: fullName,
+              username,
+              password,
+              subdomain: currentDomain,
+              import_demo_data: importDemoData,
+              domain_type: currentDomainType,
+            };
+
+            if (currentDomainType === 'custom') {
+              bodyData.custom_domain = document.getElementById("customDomainInput").value.trim();
+            }
+
+            const res = await fetch("/api/setup/admin", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(bodyData),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+              // Show success
+              document.getElementById("step2").classList.remove("active");
+              document.getElementById("step2").classList.add("completed");
+              document.getElementById("line2").classList.add("completed");
+              document.getElementById("step3").classList.remove("pending");
+              document.getElementById("step3").classList.add("completed");
+
+              document.getElementById("adminSection").classList.add("hidden");
+              document.getElementById("successSection").style.display = "block";
+
+              // Set URLs
+              let publicUrl;
+              if (currentDomainType === 'custom') {
+                const customDomain = document.getElementById("customDomainInput").value.trim();
+                publicUrl = customDomain.startsWith('http') ? customDomain : `https://${customDomain}`;
+              } else {
+                publicUrl = data.tunnelUrl || `https://${currentDomain}.nport.link`;
+              }
+              const localUrl = window.location.origin;
+
+              document.getElementById("publicUrl").href = publicUrl;
+              document.getElementById("publicUrl").textContent = publicUrl;
+              document.getElementById("localUrl").href = localUrl;
+              document.getElementById("localUrl").textContent = localUrl;
+            } else {
+              showError(data.message || "Có lỗi xảy ra");
+              resetSubmitButton();
+            }
+          } catch (error) {
+            showError("Không thể kết nối đến server");
+            resetSubmitButton();
+          }
+        });
+
+      function showError(message) {
+        const errorEl = document.getElementById("errorMessage");
+        errorEl.textContent = message;
+        errorEl.style.display = "block";
+      }
+
+      function resetSubmitButton() {
+        document.getElementById("submitText").classList.remove("hidden");
+        document.getElementById("submitSpinner").classList.add("hidden");
+        document.getElementById("submitBtn").disabled = false;
+      }
+
+      // Login redirect
+      document.getElementById("loginBtn").addEventListener("click", () => {
+        window.location.href = "/index.html";
+      });
+
+      // Initialize
+      checkSetupStatus();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+node_modules/
+dist/
+.env
+*.log
+
+# Database
+backend/database/data/*.db
+backend/database/data/backups/
+
+# Storage
+backend/storage/images/*
+backend/storage/qrcodes/*
+backend/storage/exports/*
+backend/storage/temp/*
+
+# Keep directories
+!backend/storage/images/.gitkeep
+!backend/storage/qrcodes/.gitkeep
+!backend/storage/exports/.gitkeep
+!backend/storage/temp/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
