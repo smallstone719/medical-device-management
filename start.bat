@@ -48,6 +48,6 @@ echo  Nhấn Ctrl+C để dừng
 echo ═══════════════════════════════════════════════════════════════
 echo.
 
-node server.js
+node backend/server.js
 
 pause

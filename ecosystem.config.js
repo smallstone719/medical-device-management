@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "vicas-device-management",
-      script: "server.js",
+      script: "backend/server.js",
       instances: 1,
       autorestart: true,
       watch: false,

@@ -1,4 +1,5 @@
 const DeviceModel = require('./device.model');
+const StatisticsService = require('../statistics/statistics.service');
 
 class DeviceService {
   // ─── Lấy danh sách thiết bị ──────────────────────────────────────────
@@ -31,25 +32,41 @@ class DeviceService {
       throw { status: 409, message: `Số serial "${payload.serial_number}" đã tồn tại` };
     }
 
-    return DeviceModel.create({ ...payload, created_by });
+    const device = DeviceModel.create({ ...payload, created_by });
+    
+    // Invalidate statistics cache
+    StatisticsService.invalidateCache(payload.department_id);
+    
+    return device;
   }
 
   // ─── Cập nhật thiết bị ───────────────────────────────────────────────
   static updateDevice(id, payload, updated_by = null) {
-    this.getDeviceById(id);
+    const device = this.getDeviceById(id);
 
     // Kiểm tra serial number trùng (nếu có thay đổi)
     if (payload.serial_number && DeviceModel.isSerialNumberExists(payload.serial_number, id)) {
       throw { status: 409, message: `Số serial "${payload.serial_number}" đã tồn tại` };
     }
 
-    return DeviceModel.update(id, { ...payload, updated_by });
+    const updated = DeviceModel.update(id, { ...payload, updated_by });
+    
+    // Invalidate cache for both old and new department
+    StatisticsService.invalidateCache(device.department_id);
+    if (payload.department_id && payload.department_id !== device.department_id) {
+      StatisticsService.invalidateCache(payload.department_id);
+    }
+    
+    return updated;
   }
 
   // ─── Xóa thiết bị ────────────────────────────────────────────────────
   static deleteDevice(id, deleted_by = null) {
-    this.getDeviceById(id);
+    const device = this.getDeviceById(id);
     DeviceModel.softDelete(id, deleted_by);
+    
+    // Invalidate statistics cache
+    StatisticsService.invalidateCache(device.department_id);
   }
 
   // ─── Lấy danh sách locations ─────────────────────────────────────────

@@ -6,6 +6,6 @@ const { authenticate } = require('../../middlewares/auth.middleware');
 router.use(authenticate);
 
 router.get('/devices', controller.exportDevices);
-router.get('/assets', controller.exportAssets);
+router.get('/inspections', controller.exportInspections);
 
 module.exports = router;

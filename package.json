@@ -4,11 +4,13 @@
   "description": "Medical Device Management System",
   "main": "electron/main.js",
   "scripts": {
+    "start": "node backend/server.js",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:electron\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:electron": "electron .",
     "build": "node scripts/build.js",
+    "build:standalone": "node scripts/build-standalone.js",
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js"
   },

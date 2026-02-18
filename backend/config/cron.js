@@ -11,7 +11,14 @@ function initCronJobs() {
   // Generate reports weekly on Monday at 8 AM
   cron.schedule('0 8 * * 1', jobs.reportJob);
 
+  // Check scheduled reports every 5 minutes (optimized from every minute)
+  cron.schedule('*/5 * * * *', jobs.checkScheduledReports);
+
   console.log('✅ Cron jobs initialized');
+  console.log('   - Backup: Daily at 2 AM');
+  console.log('   - Cleanup: Every hour');
+  console.log('   - Reports: Weekly on Monday at 8 AM');
+  console.log('   - Scheduled reports: Every 5 minutes');
 }
 
 module.exports = { initCronJobs };

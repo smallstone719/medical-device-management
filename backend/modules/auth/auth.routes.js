@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const controller = require('./auth.controller');
 const { authenticate } = require('../../middlewares/auth.middleware');
+const { loginLimiter } = require('../../middlewares/rate-limit.middleware');
 
-router.post('/login', controller.login);
+// Apply rate limiting to login endpoint
+router.post('/login', loginLimiter, controller.login);
 
 // Register có thể dùng với hoặc không có auth
 // Nếu có auth (admin), sẽ lưu created_by

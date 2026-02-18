@@ -25,3 +25,6 @@ const error = (message = 'Lỗi server', errors = null) => ({
 });
 
 module.exports = { success, paginated, error };
+// Aliases for backward compatibility
+module.exports.successResponse = success;
+module.exports.errorResponse = error;
