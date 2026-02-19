@@ -15,14 +15,16 @@ try {
   console.log('Building frontend...');
   execSync('cd frontend && npm run build', { stdio: 'inherit' });
 
-  // Build Electron app (skip if not needed)
-  if (process.env.BUILD_ELECTRON !== 'false') {
+  // Skip Electron build on Railway/production
+  if (process.env.BUILD_ELECTRON === 'true') {
     console.log('Building Electron app...');
     try {
       execSync('npm run build:electron', { stdio: 'inherit' });
     } catch (e) {
-      console.log('Skipping Electron build:', e.message);
+      console.log('Electron build failed:', e.message);
     }
+  } else {
+    console.log('Skipping Electron build (set BUILD_ELECTRON=true to enable)');
   }
 
   console.log('✅ Build completed successfully');

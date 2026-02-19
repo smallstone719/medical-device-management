@@ -68,6 +68,19 @@ app.use('/api/config', require('./modules/config/config.routes'));
 app.use('/api/statistics', require('./modules/statistics/statistics.routes'));
 app.use('/api/tunnel', require('./modules/tunnel/tunnel.routes'));
 
+// Serve Vue SPA (must be after API routes)
+const frontendPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(frontendPath));
+
+// SPA fallback - serve index.html for all non-API routes
+app.get('*', (req, res) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ success: false, message: 'API endpoint not found' });
+  }
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
+
 // Error handling
 app.use(require('./middlewares/error.middleware'));
 
