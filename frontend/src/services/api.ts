@@ -1,5 +1,6 @@
 // API Service - Kết nối với backend
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+// Use relative URL to avoid CORS issues (frontend and backend on same domain)
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, any>
@@ -39,6 +40,8 @@ class ApiService {
     const response = await fetch(url, {
       ...fetchOptions,
       headers,
+      credentials: 'include', // Important for Safari and mobile browsers
+      mode: 'cors',
     })
 
     if (!response.ok) {
@@ -91,6 +94,8 @@ class ApiService {
       method: 'POST',
       headers,
       body: formData,
+      credentials: 'include', // Important for Safari and mobile browsers
+      mode: 'cors',
     })
 
     if (!response.ok) {

@@ -1,9 +1,18 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+const { STORAGE_DIR } = require('./paths');
+
+// Ensure storage directory exists
+const tempDir = path.join(STORAGE_DIR, 'temp');
+if (!fs.existsSync(tempDir)) {
+  console.log(`Creating storage directory: ${tempDir}`);
+  fs.mkdirSync(tempDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../storage/temp'));
+    cb(null, tempDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
