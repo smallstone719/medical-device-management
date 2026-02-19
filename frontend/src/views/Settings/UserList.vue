@@ -404,10 +404,10 @@
                 <span
                   :class="[
                     'rounded-full px-2.5 py-1 text-sm font-medium',
-                    getStatusColorClasses(user.is_active)
+                    getStatusColorClasses(!!user.is_active)
                   ]"
                 >
-                  {{ getStatusLabel(user.is_active) }}
+                  {{ getStatusLabel(!!user.is_active) }}
                 </span>
               </td>
               <td class="py-3 whitespace-nowrap text-right">
@@ -645,13 +645,8 @@ const loadUsers = async () => {
     loading.value = true
     const response = await userService.getAll(filters.value)
     
-    if (response.data && Array.isArray(response.data)) {
-      users.value = [...response.data]
-      total.value = response.pagination?.total || response.data.length
-    } else {
-      users.value = response.data || response
-      total.value = response.total || users.value.length
-    }
+    users.value = response.data || []
+    total.value = response.pagination?.total || response.data?.length || 0
   } catch (err: any) {
     console.error('Load users error:', err)
     showError('Không thể tải danh sách người dùng')
@@ -663,7 +658,7 @@ const loadUsers = async () => {
 const loadDepartments = async () => {
   try {
     const response = await departmentService.getAll({ limit: 1000 })
-    departments.value = response.data || response
+    departments.value = (response as any).data || response
   } catch (err: any) {
     console.error('Load departments error:', err)
   }
@@ -692,10 +687,10 @@ const handleSubmit = async () => {
     
     if (showEditModal.value && editingUser.value) {
       const { password, ...updateData } = formData.value
-      await userService.update(editingUser.value.id, updateData)
+      await userService.update(editingUser.value.id, updateData as any)
       success('Cập nhật người dùng thành công')
     } else {
-      await userService.create(formData.value)
+      await userService.create(formData.value as any)
       success('Thêm người dùng thành công')
     }
     
@@ -733,7 +728,7 @@ const editUser = (user: User) => {
     role: user.role,
     department_id: user.department_id || null,
     zalo_id: user.zalo_id || '',
-    is_active: user.is_active === true || user.is_active === 1,
+    is_active: !!user.is_active,
   }
   showEditModal.value = true
 }

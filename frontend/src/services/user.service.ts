@@ -16,9 +16,21 @@ export interface User {
   updated_at: string
 }
 
+export interface PaginatedResponse<T> {
+  success: boolean
+  message: string
+  data: T[]
+  pagination?: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
 class UserService {
-  async getAll(filters?: any) {
-    return api.get<User[]>('/users', filters)
+  async getAll(filters?: any): Promise<PaginatedResponse<User>> {
+    return api.get<PaginatedResponse<User>>('/users', filters) as any
   }
 
   async getById(id: number) {
