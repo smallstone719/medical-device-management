@@ -172,7 +172,7 @@
       <!-- Card Header -->
       <div class="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">Khoa phòng</h3>
+          <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">Danh mục khoa phòng</h3>
           <p class="text-theme-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Quản lý cơ cấu khoa, phòng
           </p>
@@ -191,12 +191,53 @@
 
       <!-- Filters -->
       <div class="flex flex-col gap-3 mb-4 sm:flex-row">
-        <input
-          v-model="filters.search"
-          type="text"
-          placeholder="Tìm kiếm..."
-          class="h-11 flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
-        />
+        <div class="relative flex-1">
+          <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg
+              class="fill-gray-500 dark:fill-gray-400"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
+                fill=""
+              />
+            </svg>
+          </div>
+          <input
+            v-model="filters.search"
+            type="text"
+            placeholder="Tìm kiếm khoa phòng..."
+            @keyup.enter="handleSearch"
+            class="h-11 w-full rounded-lg border border-gray-200 bg-white pl-12 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+            :class="filters.search ? 'pr-40' : 'pr-20'"
+          />
+          <button
+            v-if="filters.search"
+            @click="handleClearSearch"
+            class="absolute right-[80px] top-1/2 -translate-y-1/2 inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs text-gray-500 hover:bg-gray-100 transition-colors dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 dark:hover:bg-white/[0.05]"
+            title="Xóa tìm kiếm"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>Xóa</span>
+          </button>
+          <button
+            @click="handleSearch"
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs text-gray-500 hover:bg-gray-100 transition-colors dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 dark:hover:bg-white/[0.05]"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <span>Tìm</span>
+          </button>
+        </div>
         <div class="relative z-20 bg-transparent flex-1">
           <select
             v-model="filters.is_active"
@@ -220,25 +261,25 @@
           <thead>
             <tr class="border-t border-gray-100 dark:border-gray-800">
               <th class="py-3 text-left" style="min-width: 100px">
-                <p class="font-medium text-gray-500 text-theme-sm dark:text-gray-400">Mã khoa phòng</p>
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Mã khoa phòng</p>
               </th>
               <th class="py-3 text-left" style="min-width: 150px">
-                <p class="font-medium text-gray-500 text-theme-sm dark:text-gray-400">Tên khoa phòng</p>
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Tên khoa phòng</p>
               </th>
               <th class="py-3 text-left" style="min-width: 120px">
-                <p class="font-medium text-gray-500 text-theme-sm dark:text-gray-400">Khoa phòng cha</p>
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Khoa phòng cha</p>
               </th>
               <th class="py-3 text-left" style="min-width: 120px">
-                <p class="font-medium text-gray-500 text-theme-sm dark:text-gray-400">Quản lý</p>
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Quản lý</p>
               </th>
               <th class="py-3 text-left" style="min-width: 110px">
-                <p class="font-medium text-gray-500 text-theme-sm dark:text-gray-400">Số thành viên</p>
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Số thành viên</p>
               </th>
               <th class="py-3 text-left" style="min-width: 120px">
-                <p class="font-medium text-gray-500 text-theme-sm dark:text-gray-400">Trạng thái</p>
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Trạng thái</p>
               </th>
               <th class="py-3 text-right" style="min-width: 100px">
-                <p class="font-medium text-gray-500 text-theme-sm dark:text-gray-400">Thao tác</p>
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Thao tác</p>
               </th>
             </tr>
           </thead>
@@ -252,7 +293,12 @@
             </tr>
             <tr v-else-if="departments.length === 0">
               <td colspan="7" class="py-8 text-center">
-                <p class="text-gray-500 dark:text-gray-400">Không có khoa phòng nào</p>
+                <div class="flex flex-col items-center justify-center gap-3">
+                  <svg class="h-16 w-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  <p class="text-gray-500 dark:text-gray-400">Không có khoa phòng nào</p>
+                </div>
               </td>
             </tr>
             <tr
@@ -262,12 +308,12 @@
               class="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/[0.02]"
             >
               <td class="py-3 whitespace-nowrap">
-                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                <p class="font-medium text-gray-700 text-theme-sm dark:text-gray-300">
                   {{ department.code }}
                 </p>
               </td>
               <td class="py-3 whitespace-nowrap">
-                <p class="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                <p class="font-medium text-gray-700 text-theme-sm dark:text-gray-300">
                   {{ department.name }}
                 </p>
               </td>
@@ -685,16 +731,18 @@ const nextPage = () => {
   loadDepartments()
 }
 
-// Watch for filter changes
-let searchTimeout: ReturnType<typeof setTimeout> | null = null
-watch(() => filters.value.search, () => {
-  if (searchTimeout) clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {
-    filters.value.page = 1
-    loadDepartments()
-  }, 500) // Debounce 500ms
-})
+const handleSearch = () => {
+  filters.value.page = 1
+  loadDepartments()
+}
 
+const handleClearSearch = () => {
+  filters.value.search = ''
+  filters.value.page = 1
+  loadDepartments()
+}
+
+// Watch for filter changes
 watch(() => filters.value.is_active, () => {
   filters.value.page = 1
   loadDepartments()

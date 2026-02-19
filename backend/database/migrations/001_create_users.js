@@ -8,9 +8,11 @@ const up = () => {
       full_name     TEXT    NOT NULL,
       email         TEXT    NOT NULL UNIQUE,
       password_hash TEXT    NOT NULL,
-      role          TEXT    NOT NULL DEFAULT 'user'
-                    CHECK(role IN ('admin', 'inspector', 'technician', 'viewer', 'user')),
+      role          TEXT    NOT NULL DEFAULT 'viewer'
+                    CHECK(role IN ('admin', 'inspector', 'technician', 'viewer')),
       avatar        TEXT,
+      phone_number  TEXT,
+      zalo_id       TEXT,
       is_active     INTEGER NOT NULL DEFAULT 1,
       created_by    INTEGER,
       updated_by    INTEGER,
@@ -26,6 +28,8 @@ const up = () => {
     CREATE INDEX IF NOT EXISTS idx_users_username   ON users(username);
     CREATE INDEX IF NOT EXISTS idx_users_email      ON users(email);
     CREATE INDEX IF NOT EXISTS idx_users_role       ON users(role);
+    CREATE INDEX IF NOT EXISTS idx_users_phone_number ON users(phone_number);
+    CREATE INDEX IF NOT EXISTS idx_users_zalo_id    ON users(zalo_id);
     CREATE INDEX IF NOT EXISTS idx_users_is_active  ON users(is_active);
     CREATE INDEX IF NOT EXISTS idx_users_created_by ON users(created_by);
     CREATE INDEX IF NOT EXISTS idx_users_updated_by ON users(updated_by);

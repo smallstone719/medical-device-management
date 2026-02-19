@@ -17,8 +17,11 @@ const authenticate = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    // Đảm bảo ID là integer
+    const userId = parseInt(decoded.id, 10);
+
     // Kiểm tra user vẫn còn tồn tại và active trong DB
-    const user = db.prepare('SELECT id, username, role, is_active FROM users WHERE id = ? AND deleted_at IS NULL').get(decoded.id);
+    const user = db.prepare('SELECT id, username, role, is_active FROM users WHERE id = ? AND deleted_at IS NULL').get(userId);
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Tài khoản không tồn tại' });

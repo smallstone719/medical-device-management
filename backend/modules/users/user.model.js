@@ -23,13 +23,15 @@ class UserModel {
     `).get(...params).count;
 
     const rows = db.prepare(`
-      SELECT u.id, u.username, u.full_name, u.email, u.role,
+      SELECT u.id, u.username, u.full_name, u.email, u.phone_number, u.zalo_id,
+             u.role, u.department_id, d.name as department_name,
              u.avatar, u.is_active, u.created_at, u.updated_at,
              uc.username as created_by_username,
              uu.username as updated_by_username
       FROM users u
       LEFT JOIN users uc ON u.created_by = uc.id
       LEFT JOIN users uu ON u.updated_by = uu.id
+      LEFT JOIN departments d ON u.department_id = d.id AND d.deleted_at IS NULL
       ${where}
       ORDER BY u.created_at DESC
       LIMIT ? OFFSET ?
@@ -41,13 +43,15 @@ class UserModel {
   // ─── Tìm theo ID ─────────────────────────────────────────────────────
   static findById(id) {
     return db.prepare(`
-      SELECT u.id, u.username, u.full_name, u.email, u.role,
+      SELECT u.id, u.username, u.full_name, u.email, u.phone_number, u.zalo_id,
+             u.role, u.department_id, d.name as department_name,
              u.avatar, u.is_active, u.created_at, u.updated_at,
              uc.username as created_by_username,
              uu.username as updated_by_username
       FROM users u
       LEFT JOIN users uc ON u.created_by = uc.id
       LEFT JOIN users uu ON u.updated_by = uu.id
+      LEFT JOIN departments d ON u.department_id = d.id AND d.deleted_at IS NULL
       WHERE u.id = ? AND u.deleted_at IS NULL
     `).get(id);
   }
@@ -69,24 +73,27 @@ class UserModel {
   }
 
   // ─── Tạo mới ─────────────────────────────────────────────────────────
-  static create({ username, full_name, email, password_hash, role = 'user', created_by = null }) {
+  static create({ username, full_name, email, phone_number, zalo_id, password_hash, role = 'user', department_id = null, created_by = null }) {
     const stmt = db.prepare(`
-      INSERT INTO users (username, full_name, email, password_hash, role, created_by, is_active, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))
+      INSERT INTO users (username, full_name, email, phone_number, zalo_id, password_hash, role, department_id, created_by, is_active, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))
     `);
 
-    const result = stmt.run(username, full_name, email, password_hash, role, created_by);
+    const result = stmt.run(username, full_name, email, phone_number, zalo_id, password_hash, role, department_id, created_by);
     return this.findById(result.lastInsertRowid);
   }
 
   // ─── Cập nhật thông tin ───────────────────────────────────────────────
-  static update(id, { full_name, email, role, is_active, avatar, updated_by }) {
+  static update(id, { full_name, email, phone_number, zalo_id, role, department_id, is_active, avatar, updated_by }) {
     const fields = [];
     const params = [];
 
     if (full_name !== undefined) { fields.push('full_name = ?'); params.push(full_name); }
     if (email     !== undefined) { fields.push('email = ?');     params.push(email); }
+    if (phone_number !== undefined) { fields.push('phone_number = ?'); params.push(phone_number); }
+    if (zalo_id   !== undefined) { fields.push('zalo_id = ?');   params.push(zalo_id); }
     if (role      !== undefined) { fields.push('role = ?');      params.push(role); }
+    if (department_id !== undefined) { fields.push('department_id = ?'); params.push(department_id); }
     if (is_active !== undefined) { fields.push('is_active = ?'); params.push(is_active ? 1 : 0); }
     if (avatar    !== undefined) { fields.push('avatar = ?');    params.push(avatar); }
 

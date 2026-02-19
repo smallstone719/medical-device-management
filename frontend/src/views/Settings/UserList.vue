@@ -3,8 +3,8 @@
     <!-- Confirm Delete Dialog -->
     <ConfirmDialog
       :show="showDeleteConfirm"
-      title="Xóa loại thiết bị"
-      :message="`Bạn có chắc muốn xóa loại thiết bị &quot;${deletingCategory?.name}&quot;? Hành động này không thể hoàn tác.`"
+      title="Xóa người dùng"
+      :message="`Bạn có chắc muốn xóa người dùng &quot;${deletingUser?.full_name}&quot;? Hành động này không thể hoàn tác.`"
       confirmText="Xóa"
       cancelText="Hủy"
       variant="danger"
@@ -16,7 +16,7 @@
     <Modal v-if="showCreateModal || showEditModal" :fullScreenBackdrop="true" @close="closeModal">
       <template #body>
         <div
-          class="no-scrollbar relative w-full max-w-[600px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8 mx-4"
+          class="no-scrollbar relative w-full max-w-[600px] max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-8 mx-4"
         >
           <!-- Close button -->
           <button
@@ -36,80 +36,199 @@
           <!-- Modal Header -->
           <div class="px-2 pr-14 mb-6">
             <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">
-              {{ showEditModal ? 'Sửa loại thiết bị' : 'Thêm loại thiết bị mới' }}
+              {{ showEditModal ? 'Sửa người dùng' : 'Thêm người dùng mới' }}
             </h3>
             <p class="text-theme-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              {{ showEditModal ? 'Cập nhật thông tin loại thiết bị' : 'Nhập thông tin loại thiết bị y tế' }}
+              {{ showEditModal ? 'Cập nhật thông tin người dùng' : 'Nhập thông tin người dùng' }}
             </p>
           </div>
 
           <!-- Form -->
           <form @submit.prevent="handleSubmit" class="space-y-5 px-2">
-            <!-- Loại thiết bị -->
+            <!-- Họ tên - Full width -->
             <div>
               <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Loại thiết bị <span class="text-red-500">*</span>
+                Họ và tên <span class="text-red-500">*</span>
               </label>
               <input
-                v-model="formData.name"
+                v-model="formData.full_name"
                 type="text"
-                placeholder="Nhập loại thiết bị"
+                placeholder="Nhập họ và tên"
                 required
                 class="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
               />
             </div>
 
-            <!-- Mô tả -->
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Mô tả
-              </label>
-              <textarea
-                v-model="formData.description"
-                rows="3"
-                placeholder="Nhập mô tả loại thiết bị"
-                class="w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
-              ></textarea>
+            <!-- Row 1: Tên đăng nhập + Vai trò -->
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Tên đăng nhập <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="formData.username"
+                  type="text"
+                  placeholder="Nhập tên đăng nhập"
+                  required
+                  :disabled="showEditModal"
+                  class="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Vai trò <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <select
+                    v-model="formData.role"
+                    required
+                    class="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm text-gray-800 shadow-theme-xs focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  >
+                    <option v-for="option in ROLE_OPTIONS" :key="option.value" :value="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                  <span class="absolute text-gray-700 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                    <svg class="stroke-current" width="16" height="16" viewBox="0 0 20 20" fill="none">
+                      <path d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <!-- Màu sắc -->
-            <div>
-              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Màu sắc <span class="text-red-500">*</span>
-              </label>
-              <div class="flex items-center gap-3">
+            <!-- Row 2: Mật khẩu + Khoa phòng -->
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <!-- Mật khẩu (chỉ khi tạo mới) -->
+              <div v-if="!showEditModal">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Mật khẩu <span class="text-red-500">*</span>
+                </label>
                 <input
-                  v-model="formData.color"
-                  type="color"
+                  v-model="formData.password"
+                  type="password"
+                  placeholder="Nhập mật khẩu"
                   required
-                  class="h-11 w-20 cursor-pointer rounded-lg border border-gray-300 bg-white dark:border-gray-700 dark:bg-gray-900"
+                  class="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
                 />
+              </div>
+
+              <!-- Khoa phòng -->
+              <div :class="showEditModal ? 'sm:col-span-2' : ''">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Khoa phòng
+                </label>
+                <div class="relative">
+                  <select
+                    v-model="formData.department_id"
+                    class="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-10 text-sm text-gray-800 shadow-theme-xs focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+                  >
+                    <option :value="null">-- Không có --</option>
+                    <option 
+                      v-for="dept in departments" 
+                      :key="dept.id" 
+                      :value="dept.id"
+                    >
+                      {{ dept.name }}
+                    </option>
+                  </select>
+                  <span class="absolute text-gray-700 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                    <svg class="stroke-current" width="16" height="16" viewBox="0 0 20 20" fill="none">
+                      <path d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 3: Email + Số điện thoại -->
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Email
+                </label>
                 <input
-                  v-model="formData.color"
-                  type="text"
-                  placeholder="#000000"
-                  required
-                  class="h-11 flex-1 appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+                  v-model="formData.email"
+                  type="email"
+                  placeholder="Nhập email"
+                  class="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+                />
+              </div>
+
+              <div>
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                  Số điện thoại
+                </label>
+                <input
+                  v-model="formData.phone_number"
+                  type="tel"
+                  placeholder="Nhập số điện thoại"
+                  class="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
                 />
               </div>
             </div>
 
+            <!-- Zalo ID - Full width -->
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                Zalo ID
+              </label>
+              <input
+                v-model="formData.zalo_id"
+                type="text"
+                placeholder="Nhập Zalo ID"
+                class="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+              />
+              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">ID Zalo để nhận thông báo qua Zalo Bot</p>
+            </div>
+
             <!-- Form Actions -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
-              <button
-                type="button"
-                @click="closeModal"
-                class="h-11 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-              >
-                Hủy
-              </button>
-              <button
-                type="submit"
-                :disabled="submitting"
-                class="h-11 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {{ submitting ? 'Đang xử lý...' : (showEditModal ? 'Cập nhật' : 'Thêm mới') }}
-              </button>
+            <div class="flex items-center justify-between gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+              <!-- Trạng thái -->
+              <div class="flex items-center gap-3">
+                <label class="flex items-center cursor-pointer">
+                  <input
+                    v-model="formData.is_active"
+                    type="checkbox"
+                    class="sr-only"
+                  />
+                  <div
+                    :class="[
+                      'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                      formData.is_active ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-700'
+                    ]"
+                  >
+                    <span
+                      :class="[
+                        'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                        formData.is_active ? 'translate-x-6' : 'translate-x-1'
+                      ]"
+                    ></span>
+                  </div>
+                  <span class="ml-3 text-sm text-gray-700 dark:text-gray-400">
+                    {{ formData.is_active ? 'Hoạt động' : 'Không hoạt động' }}
+                  </span>
+                </label>
+              </div>
+
+              <!-- Buttons -->
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  @click="closeModal"
+                  class="h-11 rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  :disabled="submitting"
+                  class="h-11 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-theme-xs hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ submitting ? 'Đang xử lý...' : (showEditModal ? 'Cập nhật' : 'Thêm mới') }}
+                </button>
+              </div>
             </div>
           </form>
         </div>
@@ -123,9 +242,9 @@
       <!-- Card Header -->
       <div class="flex items-start justify-between gap-3 mb-4">
         <div>
-          <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">Danh mục loại thiết bị</h3>
+          <h3 class="text-xl font-semibold text-gray-800 dark:text-white/90">Quản lý người dùng</h3>
           <p class="text-theme-sm text-gray-500 dark:text-gray-400 mt-0.5">
-            Quản lý nhóm thiết bị y tế
+            Quản lý tài khoản và phân quyền
           </p>
         </div>
 
@@ -141,8 +260,8 @@
       </div>
 
       <!-- Filters -->
-      <div class="mb-4">
-        <div class="relative">
+      <div class="flex flex-col gap-3 mb-4 sm:flex-row">
+        <div class="relative flex-1">
           <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
             <svg
               class="fill-gray-500 dark:fill-gray-400"
@@ -163,7 +282,7 @@
           <input
             v-model="filters.search"
             type="text"
-            placeholder="Tìm kiếm loại thiết bị..."
+            placeholder="Tìm kiếm người dùng..."
             @keyup.enter="handleSearch"
             class="h-11 w-full rounded-lg border border-gray-200 bg-white pl-12 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
             :class="filters.search ? 'pr-40' : 'pr-20'"
@@ -189,6 +308,22 @@
             <span>Tìm</span>
           </button>
         </div>
+        <div class="relative z-20 bg-transparent flex-1">
+          <select
+            v-model="filters.role"
+            class="h-11 w-full appearance-none rounded-lg border border-gray-300 bg-white px-4 py-2.5 pr-11 text-sm text-gray-800 shadow-theme-xs focus:border-blue-500 focus:outline-none focus:ring-3 focus:ring-blue-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+          >
+            <option value="">Tất cả vai trò</option>
+            <option v-for="option in ROLE_OPTIONS" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+          <span class="absolute z-30 text-gray-700 -translate-y-1/2 pointer-events-none right-4 top-1/2 dark:text-gray-400">
+            <svg class="stroke-current" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+        </div>
       </div>
 
       <!-- Table -->
@@ -196,17 +331,20 @@
         <table class="min-w-full">
           <thead>
             <tr class="border-t border-gray-100 dark:border-gray-800">
+              <th class="py-3 text-left" style="min-width: 120px">
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Tên đăng nhập</p>
+              </th>
               <th class="py-3 text-left" style="min-width: 150px">
-                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Loại thiết bị</p>
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Họ và tên</p>
               </th>
-              <th class="py-3 text-left" style="min-width: 200px">
-                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Mô tả</p>
+              <th class="py-3 text-left" style="min-width: 120px">
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Vai trò</p>
+              </th>
+              <th class="py-3 text-left" style="min-width: 120px">
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Khoa phòng</p>
               </th>
               <th class="py-3 text-left" style="min-width: 100px">
-                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Màu sắc</p>
-              </th>
-              <th class="py-3 text-left" style="min-width: 100px">
-                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Số thiết bị</p>
+                <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Trạng thái</p>
               </th>
               <th class="py-3 text-right" style="min-width: 100px">
                 <p class="text-xs uppercase font-medium text-gray-400 dark:text-gray-400">Thao tác</p>
@@ -215,60 +353,67 @@
           </thead>
           <tbody>
             <tr v-if="loading">
-              <td colspan="5" class="py-8 text-center">
+              <td colspan="6" class="py-8 text-center">
                 <div class="flex justify-center">
                   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
               </td>
             </tr>
-            <tr v-else-if="categories.length === 0">
-              <td colspan="5" class="py-8 text-center">
+            <tr v-else-if="users.length === 0">
+              <td colspan="6" class="py-8 text-center">
                 <div class="flex flex-col items-center justify-center gap-3">
                   <svg class="h-16 w-16 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
-                  <p class="text-gray-500 dark:text-gray-400">Không có loại thiết bị nào</p>
+                  <p class="text-gray-500 dark:text-gray-400">Không có người dùng nào</p>
                 </div>
               </td>
             </tr>
             <tr
               v-else
-              v-for="category in categories"
-              :key="category.id"
+              v-for="user in users"
+              :key="user.id"
               class="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/[0.02]"
             >
               <td class="py-3 whitespace-nowrap">
                 <p class="font-medium text-gray-700 text-theme-sm dark:text-gray-300">
-                  {{ category.name }}
-                </p>
-              </td>
-              <td class="py-3">
-                <p class="font-medium text-gray-700 text-theme-sm dark:text-gray-300 max-w-xs truncate">
-                  {{ category.description || '-' }}
+                  {{ user.username }}
                 </p>
               </td>
               <td class="py-3 whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <div
-                    :style="{ backgroundColor: category.color }"
-                    class="h-6 w-6 rounded border border-gray-300 dark:border-gray-700"
-                  ></div>
-                  <span class="text-gray-500 text-theme-sm dark:text-gray-400">
-                    {{ category.color }}
-                  </span>
-                </div>
+                <p class="font-medium text-gray-700 text-theme-sm dark:text-gray-300">
+                  {{ user.full_name }}
+                </p>
               </td>
               <td class="py-3 whitespace-nowrap">
                 <span
-                  class="rounded-full bg-blue-50 px-2 py-0.5 text-theme-sm font-medium text-blue-600 dark:bg-blue-500/15 dark:text-blue-400"
+                  :class="[
+                    'rounded-full px-2.5 py-1 text-sm font-medium',
+                    getRoleColorClasses(user.role as UserRole)
+                  ]"
                 >
-                  {{ category.device_count || 0 }} thiết bị
+                  {{ getRoleLabel(user.role as UserRole) }}
+                </span>
+              </td>
+              <td class="py-3 whitespace-nowrap">
+                <p class="text-gray-500 text-theme-sm dark:text-gray-400">
+                  {{ user.department_name || '-' }}
+                </p>
+              </td>
+              <td class="py-3 whitespace-nowrap">
+                <span
+                  :class="[
+                    'rounded-full px-2.5 py-1 text-sm font-medium',
+                    getStatusColorClasses(user.is_active)
+                  ]"
+                >
+                  {{ getStatusLabel(user.is_active) }}
                 </span>
               </td>
               <td class="py-3 whitespace-nowrap text-right">
                 <div class="flex items-center justify-end gap-2">
                   <button
-                    @click="editCategory(category)"
+                    @click="editUser(user)"
                     class="rounded-lg p-2.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10"
                     title="Sửa"
                   >
@@ -277,7 +422,7 @@
                     </svg>
                   </button>
                   <button
-                    @click="deleteCategory(category)"
+                    @click="deleteUser(user)"
                     class="rounded-lg p-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10"
                     title="Xóa"
                   >
@@ -304,7 +449,7 @@
               </span>
               /
               <span class="font-medium text-gray-800 dark:text-white/90">{{ total }}</span>
-              loại thiết bị
+              người dùng
             </p>
           </div>
           
@@ -316,7 +461,7 @@
               <div class="relative">
                 <select
                   v-model="filters.limit"
-                  @change="loadCategories"
+                  @change="loadUsers"
                   class="h-9 appearance-none rounded-lg border border-gray-300 bg-white px-3 py-1.5 pr-8 text-theme-sm text-gray-800 shadow-theme-xs focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90"
                 >
                   <option :value="10">10</option>
@@ -358,7 +503,7 @@
 
               <button
                 @click="nextPage"
-                :disabled="categories.length < filters.limit"
+                :disabled="users.length < filters.limit"
                 class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
                 title="Trang sau"
               >
@@ -380,7 +525,7 @@
               </span>
               /
               <span class="font-medium text-gray-800 dark:text-white/90">{{ total }}</span>
-              loại thiết bị
+              người dùng
             </p>
           </div>
 
@@ -392,7 +537,7 @@
               <div class="relative">
                 <select
                   v-model="filters.limit"
-                  @change="loadCategories"
+                  @change="loadUsers"
                   class="h-9 appearance-none rounded-lg border border-gray-300 bg-white px-3 py-1.5 pr-8 text-theme-sm text-gray-800 shadow-theme-xs focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white/90"
                 >
                   <option :value="10">10</option>
@@ -437,7 +582,7 @@
 
               <button
                 @click="nextPage"
-                :disabled="categories.length < filters.limit"
+                :disabled="users.length < filters.limit"
                 class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 shadow-theme-xs transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
                 title="Trang sau"
               >
@@ -454,64 +599,90 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import categoryService, { type Category } from '@/services/category.service'
+import { ref, onMounted, watch } from 'vue'
+import userService, { type User } from '@/services/user.service'
+import departmentService, { type Department } from '@/services/department.service'
 import { useToast } from '@/composables/useToast'
 import Modal from '@/components/ui/Modal.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import { ROLE_OPTIONS, getRoleLabel, getRoleColorClasses, type UserRole } from '@/constants/roles'
+import { getStatusLabel, getStatusColorClasses } from '@/constants/status'
 
 const { success, error: showError } = useToast()
 
-const categories = ref<Category[]>([])
+const users = ref<User[]>([])
+const departments = ref<Department[]>([])
 const loading = ref(false)
 const total = ref(0)
 const showCreateModal = ref(false)
 const showEditModal = ref(false)
 const submitting = ref(false)
-const editingCategory = ref<Category | null>(null)
+const editingUser = ref<User | null>(null)
 const showDeleteConfirm = ref(false)
-const deletingCategory = ref<Category | null>(null)
+const deletingUser = ref<User | null>(null)
 
 const formData = ref({
-  name: '',
-  description: '',
-  color: '#3B82F6',
+  username: '',
+  full_name: '',
+  email: '',
+  phone_number: '',
+  password: '',
+  role: 'viewer' as 'admin' | 'inspector' | 'technician' | 'viewer',
+  department_id: null as number | null,
+  zalo_id: '',
+  is_active: true,
 })
 
 const filters = ref({
   search: '',
+  role: '',
   page: 1,
   limit: 20,
 })
 
-const loadCategories = async () => {
+const loadUsers = async () => {
   try {
     loading.value = true
-    const response = await categoryService.getAll(filters.value)
-    categories.value = response.data || response
-    total.value = response.total || categories.value.length
-  } catch (err: any) {
-    console.error('Load categories error:', err)
+    const response = await userService.getAll(filters.value)
     
-    let errorMessage = 'Không thể tải danh sách loại thiết bị'
-    if (err.message && !err.message.includes('Failed to fetch')) {
-      errorMessage = err.message
+    if (response.data && Array.isArray(response.data)) {
+      users.value = [...response.data]
+      total.value = response.pagination?.total || response.data.length
+    } else {
+      users.value = response.data || response
+      total.value = response.total || users.value.length
     }
-    
-    showError(errorMessage)
+  } catch (err: any) {
+    console.error('Load users error:', err)
+    showError('Không thể tải danh sách người dùng')
   } finally {
     loading.value = false
+  }
+}
+
+const loadDepartments = async () => {
+  try {
+    const response = await departmentService.getAll({ limit: 1000 })
+    departments.value = response.data || response
+  } catch (err: any) {
+    console.error('Load departments error:', err)
   }
 }
 
 const closeModal = () => {
   showCreateModal.value = false
   showEditModal.value = false
-  editingCategory.value = null
+  editingUser.value = null
   formData.value = {
-    name: '',
-    description: '',
-    color: '#3B82F6',
+    username: '',
+    full_name: '',
+    email: '',
+    phone_number: '',
+    password: '',
+    role: 'viewer',
+    department_id: null,
+    zalo_id: '',
+    is_active: true,
   }
 }
 
@@ -519,35 +690,27 @@ const handleSubmit = async () => {
   try {
     submitting.value = true
     
-    console.log('Submitting form data:', formData.value)
-    
-    if (showEditModal.value && editingCategory.value) {
-      const result = await categoryService.update(editingCategory.value.id, formData.value)
-      console.log('Update result:', result)
-      success('Cập nhật loại thiết bị thành công')
+    if (showEditModal.value && editingUser.value) {
+      const { password, ...updateData } = formData.value
+      await userService.update(editingUser.value.id, updateData)
+      success('Cập nhật người dùng thành công')
     } else {
-      const result = await categoryService.create(formData.value)
-      console.log('Create result:', result)
-      success('Thêm loại thiết bị thành công')
+      await userService.create(formData.value)
+      success('Thêm người dùng thành công')
     }
     
     closeModal()
-    loadCategories()
+    loadUsers()
   } catch (err: any) {
     console.error('Submit error:', err)
     
-    // Parse error message to show user-friendly message
-    let errorMessage = 'Không thể lưu loại thiết bị'
+    let errorMessage = 'Không thể lưu người dùng'
     
     if (err.message) {
-      if (err.message.includes('UNIQUE constraint failed: device_categories.name')) {
-        errorMessage = 'Loại thiết bị đã tồn tại. Vui lòng kiểm tra lại.'
+      if (err.message.includes('UNIQUE constraint failed: users.username')) {
+        errorMessage = 'Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.'
       } else if (err.message.includes('UNIQUE constraint failed')) {
         errorMessage = 'Dữ liệu đã tồn tại trong hệ thống.'
-      } else if (err.message.includes('NOT NULL constraint failed')) {
-        errorMessage = 'Vui lòng điền đầy đủ thông tin bắt buộc.'
-      } else if (err.message.includes('FOREIGN KEY constraint failed')) {
-        errorMessage = 'Dữ liệu liên quan không hợp lệ.'
       } else {
         errorMessage = err.message
       }
@@ -559,81 +722,79 @@ const handleSubmit = async () => {
   }
 }
 
-const editCategory = (category: Category) => {
-  editingCategory.value = category
+const editUser = (user: User) => {
+  editingUser.value = user
   formData.value = {
-    name: category.name,
-    description: category.description || '',
-    color: category.color,
+    username: user.username,
+    full_name: user.full_name,
+    email: user.email || '',
+    phone_number: user.phone_number || '',
+    password: '',
+    role: user.role,
+    department_id: user.department_id || null,
+    zalo_id: user.zalo_id || '',
+    is_active: user.is_active === true || user.is_active === 1,
   }
   showEditModal.value = true
 }
 
-const deleteCategory = (category: Category) => {
-  deletingCategory.value = category
+const deleteUser = (user: User) => {
+  deletingUser.value = user
   showDeleteConfirm.value = true
 }
 
 const confirmDelete = async () => {
-  if (!deletingCategory.value) return
+  if (!deletingUser.value) return
 
   try {
-    await categoryService.delete(deletingCategory.value.id)
-    success('Xóa loại thiết bị thành công')
+    await userService.delete(deletingUser.value.id)
+    success('Xóa người dùng thành công')
     showDeleteConfirm.value = false
-    deletingCategory.value = null
-    loadCategories()
+    deletingUser.value = null
+    loadUsers()
   } catch (err: any) {
     console.error('Delete error:', err)
-    
-    // Parse error message to show user-friendly message
-    let errorMessage = 'Không thể xóa loại thiết bị'
-    
-    if (err.message) {
-      if (err.message.includes('FOREIGN KEY constraint failed') || err.message.includes('còn có thiết bị')) {
-        errorMessage = 'Không thể xóa loại thiết bị này vì còn có thiết bị đang sử dụng.'
-      } else if (err.message.includes('not found') || err.message.includes('không tìm thấy')) {
-        errorMessage = 'Loại thiết bị không tồn tại hoặc đã bị xóa.'
-      } else {
-        errorMessage = err.message
-      }
-    }
-    
-    showError(errorMessage)
+    showError('Không thể xóa người dùng')
     showDeleteConfirm.value = false
-    deletingCategory.value = null
+    deletingUser.value = null
   }
 }
 
 const cancelDelete = () => {
   showDeleteConfirm.value = false
-  deletingCategory.value = null
+  deletingUser.value = null
 }
 
 const prevPage = () => {
   if (filters.value.page && filters.value.page > 1) {
     filters.value.page--
-    loadCategories()
+    loadUsers()
   }
 }
 
 const nextPage = () => {
   filters.value.page = (filters.value.page || 1) + 1
-  loadCategories()
+  loadUsers()
 }
 
 const handleSearch = () => {
   filters.value.page = 1
-  loadCategories()
+  loadUsers()
 }
 
 const handleClearSearch = () => {
   filters.value.search = ''
   filters.value.page = 1
-  loadCategories()
+  loadUsers()
 }
 
+watch(() => filters.value.role, () => {
+  filters.value.page = 1
+  loadUsers()
+})
+
 onMounted(() => {
-  loadCategories()
+  loadUsers()
+  loadDepartments()
 })
 </script>

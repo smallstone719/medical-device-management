@@ -46,6 +46,14 @@ const router = createRouter({
           },
         },
         {
+          path: '/settings/users',
+          name: 'Users',
+          component: () => import('../views/Settings/UserList.vue'),
+          meta: {
+            title: 'Quản lý người dùng',
+          },
+        },
+        {
           path: '/calendar',
           name: 'Calendar',
           component: () => import('../views/Others/Calendar.vue'),

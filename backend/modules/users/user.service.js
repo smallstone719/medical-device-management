@@ -29,7 +29,7 @@ class UserService {
 
   // ─── Tạo user mới ─────────────────────────────────────────────────────
   static async createUser(data, created_by) {
-    const { username, full_name, email, password, role } = data;
+    const { username, full_name, email, phone_number, zalo_id, password, role, department_id } = data;
 
     // Kiểm tra trùng
     if (UserModel.isExists({ username, email })) {
@@ -40,9 +40,12 @@ class UserService {
     const user = UserModel.create({ 
       username, 
       full_name, 
-      email, 
+      email,
+      phone_number,
+      zalo_id,
       password_hash, 
       role,
+      department_id,
       created_by 
     });
 
