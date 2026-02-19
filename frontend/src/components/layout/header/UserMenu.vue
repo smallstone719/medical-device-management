@@ -4,11 +4,13 @@
       class="flex items-center text-gray-700 dark:text-gray-400"
       @click.prevent="toggleDropdown"
     >
-      <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
-        <img src="/images/user/owner.jpg" alt="User" />
+      <span class="mr-3 overflow-hidden rounded-full h-11 w-11 bg-blue-100 flex items-center justify-center dark:bg-blue-500/15">
+        <span class="text-lg font-semibold text-blue-600 dark:text-blue-400">
+          {{ userInitial }}
+        </span>
       </span>
 
-      <span class="block mr-1 font-medium text-theme-sm">Musharof </span>
+      <span class="block mr-1 font-medium text-theme-sm">{{ userName }}</span>
 
       <ChevronDownIcon :class="{ 'rotate-180': dropdownOpen }" />
     </button>
@@ -20,10 +22,13 @@
     >
       <div>
         <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-          Musharof Chowdhury
+          {{ currentUser?.full_name || 'User' }}
         </span>
         <span class="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-          randomuser@pimjo.com
+          {{ currentUser?.email || 'user@example.com' }}
+        </span>
+        <span class="mt-1 inline-block px-2 py-0.5 text-theme-xs rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400">
+          {{ roleLabel }}
         </span>
       </div>
 
@@ -33,7 +38,6 @@
             :to="item.href"
             class="flex items-center gap-3 px-3 py-2 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
           >
-            <!-- SVG icon would go here -->
             <component
               :is="item.icon"
               class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
@@ -42,16 +46,15 @@
           </router-link>
         </li>
       </ul>
-      <router-link
-        to="/signin"
-        @click="signOut"
-        class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+      <button
+        @click="handleSignOut"
+        class="flex items-center gap-3 px-3 py-2 mt-3 font-medium text-gray-700 rounded-lg group text-theme-sm hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 w-full text-left"
       >
         <LogoutIcon
           class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
         />
-        Sign out
-      </router-link>
+        Đăng xuất
+      </button>
     </div>
     <!-- Dropdown End -->
   </div>
@@ -59,17 +62,44 @@
 
 <script setup lang="ts">
 import { ChevronDownIcon, InfoCircleIcon, LogoutIcon, SettingsIcon, UserCircleIcon } from '@/icons'
-import { onMounted, onUnmounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import authService from '@/services/auth.service'
 
+const router = useRouter()
 const dropdownOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
+const currentUser = ref(authService.getCurrentUser())
 
 const menuItems = [
-  { href: '/profile', icon: UserCircleIcon, text: 'Edit profile' },
-  { href: '/profile', icon: SettingsIcon, text: 'Account settings' },
-  { href: '/profile', icon: InfoCircleIcon, text: 'Support' },
+  { href: '/profile', icon: UserCircleIcon, text: 'Thông tin cá nhân' },
+  { href: '/profile', icon: SettingsIcon, text: 'Cài đặt tài khoản' },
+  { href: '/profile', icon: InfoCircleIcon, text: 'Hỗ trợ' },
 ]
+
+const userName = computed(() => {
+  if (!currentUser.value) return 'User'
+  const fullName = currentUser.value.full_name || currentUser.value.username
+  const parts = fullName.split(' ')
+  return parts.length > 1 ? parts[parts.length - 1] : fullName
+})
+
+const userInitial = computed(() => {
+  if (!currentUser.value) return 'U'
+  const name = currentUser.value.full_name || currentUser.value.username
+  return name.charAt(0).toUpperCase()
+})
+
+const roleLabel = computed(() => {
+  if (!currentUser.value) return ''
+  const roleMap: Record<string, string> = {
+    admin: 'Quản trị viên',
+    inspector: 'Kiểm tra viên',
+    technician: 'Kỹ thuật viên',
+    viewer: 'Người xem'
+  }
+  return roleMap[currentUser.value.role] || currentUser.value.role
+})
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value
@@ -79,10 +109,10 @@ const closeDropdown = () => {
   dropdownOpen.value = false
 }
 
-const signOut = () => {
-  // Implement sign out logic here
-  console.log('Signing out...')
+const handleSignOut = () => {
+  authService.logout()
   closeDropdown()
+  router.push('/signin')
 }
 
 const handleClickOutside = (event: Event) => {

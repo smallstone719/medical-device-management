@@ -5,7 +5,9 @@ class DepartmentController {
   // GET /api/departments
   static async getDepartments(req, res, next) {
     try {
+      console.log('Department query params:', req.query);
       const result = DepartmentService.getDepartments(req.query);
+      console.log('Department result:', { total: result.pagination.total, count: result.data.length });
       res.json(paginated(result.data, result.pagination));
     } catch (err) {
       next(err);

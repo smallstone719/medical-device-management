@@ -1,5 +1,5 @@
 <template>
-  <AdminLayout>
+  <div>
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
       <p class="text-gray-600 dark:text-gray-400 mt-1">Tổng quan hệ thống quản lý thiết bị y tế</p>
@@ -126,12 +126,11 @@
         </div>
       </div>
     </div>
-  </AdminLayout>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
 import statisticsService, { type Statistics } from '@/services/statistics.service'
 import { BoxIcon, CheckIcon, WarningIcon, ErrorIcon } from '@/icons'
 

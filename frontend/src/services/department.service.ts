@@ -2,15 +2,23 @@ import api from './api'
 
 export interface Department {
   id: number
+  code?: string
   name: string
   description?: string
+  is_active?: boolean
+  parent_id?: number
+  parent_name?: string
+  manager_id?: number
+  manager_name?: string
+  manager_avatar?: string
+  member_count?: number
   created_at: string
   updated_at: string
 }
 
 class DepartmentService {
-  async getAll() {
-    return api.get<Department[]>('/departments')
+  async getAll(filters?: any) {
+    return api.get<Department[]>('/departments', filters)
   }
 
   async getById(id: number) {

@@ -17,7 +17,7 @@ const loginLimiter = rateLimit({
 // General API rate limiter
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // 1000 in dev, 100 in prod
   message: {
     success: false,
     message: 'Quá nhiều yêu cầu. Vui lòng thử lại sau.'

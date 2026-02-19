@@ -4,11 +4,15 @@
     <Backdrop />
     <div
       class="flex-1 transition-all duration-300 ease-in-out"
-      :class="[isExpanded || isHovered ? 'lg:ml-[290px]' : 'lg:ml-[90px]']"
+      :class="[isExpanded || isHovered ? 'lg:ml-[250px]' : 'lg:ml-[90px]']"
     >
       <app-header />
       <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-        <slot></slot>
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </div>
       <!-- Footer -->
       <footer class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6 pt-0">
@@ -45,3 +49,15 @@ import AppSidebar from './AppSidebar.vue'
 import Backdrop from './Backdrop.vue'
 const { isExpanded, isHovered } = useSidebar()
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

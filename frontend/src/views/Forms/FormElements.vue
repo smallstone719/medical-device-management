@@ -1,5 +1,5 @@
 <template>
-  <AdminLayout>
+  <div>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
       <div class="space-y-6">
@@ -27,13 +27,12 @@
         </ComponentCard>
       </div>
     </div>
-  </AdminLayout>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
 import DefaultInputs from '@/components/forms/FormElements/DefaultInputs.vue'
 import ComponentCard from '@/components/common/ComponentCard.vue'
 import SelectInput from '@/components/forms/FormElements/SelectInput.vue'

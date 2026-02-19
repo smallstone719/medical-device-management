@@ -15,8 +15,8 @@ router.get('/', CategoryController.getCategories);
 router.get('/:id', CategoryController.getCategoryById);
 
 // Admin only
-router.post('/', authorize(['admin']), validate(createCategoryValidator), CategoryController.createCategory);
-router.put('/:id', authorize(['admin']), validate(updateCategoryValidator), CategoryController.updateCategory);
-router.delete('/:id', authorize(['admin']), CategoryController.deleteCategory);
+router.post('/', authorize('admin'), validate(createCategoryValidator), CategoryController.createCategory);
+router.put('/:id', authorize('admin'), validate(updateCategoryValidator), CategoryController.updateCategory);
+router.delete('/:id', authorize('admin'), CategoryController.deleteCategory);
 
 module.exports = router;

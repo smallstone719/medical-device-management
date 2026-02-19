@@ -1,5 +1,5 @@
 <template>
-  <AdminLayout>
+  <div>
     <div class="mb-6 flex items-center justify-between">
       <div>
         <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Quản lý thiết bị</h1>
@@ -172,22 +172,19 @@
         </div>
       </div>
     </div>
-  </AdminLayout>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
 import deviceService, { type Device, type DeviceFilters } from '@/services/device.service'
-import categoryService, { type Category } from '@/services/category.service'
-import departmentService, { type Department } from '@/services/department.service'
+import { useReferenceData } from '@/composables/useReferenceData'
 import { useToast } from '@/composables/useToast'
 
 const { success, error: showError } = useToast()
+const { categories, departments, loadCategories, loadDepartments } = useReferenceData()
 
 const devices = ref<Device[]>([])
-const categories = ref<Category[]>([])
-const departments = ref<Department[]>([])
 const loading = ref(false)
 const total = ref(0)
 const showCreateModal = ref(false)
@@ -211,22 +208,6 @@ const loadDevices = async () => {
     showError(err.message || 'Không thể tải danh sách thiết bị')
   } finally {
     loading.value = false
-  }
-}
-
-const loadCategories = async () => {
-  try {
-    categories.value = await categoryService.getAll()
-  } catch (err) {
-    console.error('Failed to load categories:', err)
-  }
-}
-
-const loadDepartments = async () => {
-  try {
-    departments.value = await departmentService.getAll()
-  } catch (err) {
-    console.error('Failed to load departments:', err)
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <AdminLayout>
+  <div>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div className="space-y-5 sm:space-y-6">
       <ComponentCard title="Success Alert">
@@ -67,13 +67,12 @@
         />
       </ComponentCard>
     </div>
-  </AdminLayout>
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
 import ComponentCard from '@/components/common/ComponentCard.vue'
 import Alert from '@/components/ui/Alert.vue'
 const currentPageTitle = ref('Alerts')

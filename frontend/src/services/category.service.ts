@@ -4,13 +4,15 @@ export interface Category {
   id: number
   name: string
   description?: string
+  color?: string
+  device_count?: number
   created_at: string
   updated_at: string
 }
 
 class CategoryService {
-  async getAll() {
-    return api.get<Category[]>('/categories')
+  async getAll(filters?: any) {
+    return api.get<Category[]>('/categories', filters)
   }
 
   async getById(id: number) {
