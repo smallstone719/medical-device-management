@@ -8,6 +8,9 @@ const { STORAGE_DIR } = require('./config/paths');
 
 const app = express();
 
+// Trust proxy - required for Railway/Heroku/etc to get real client IP
+app.set('trust proxy', 1);
+
 // CORS configuration - allow credentials for authentication
 const corsOptions = {
   origin: function (origin, callback) {

@@ -34,6 +34,50 @@ Kiểm tra trong tab **"Variables"** để xác nhận.
 
 Railway sẽ tự động deploy lại với volume mới.
 
+### Bước 4: Seed dữ liệu
+
+✅ **Tự động**: App sẽ tự động seed database nếu phát hiện không có user nào.
+
+Trong logs bạn sẽ thấy:
+
+```
+📦 Database is empty, running auto-seed...
+🌱 Bắt đầu seed database...
+✅ Auto-seed completed
+```
+
+**Đăng nhập với:**
+- Username: `admin`
+- Password: `admin123`
+
+### Bước 5: Nếu seed không chạy tự động
+
+⚠️ Nếu bạn đã deploy trước khi có volume, database cũ có thể còn data nên không auto-seed.
+
+**Cách 1: Force seed bằng biến môi trường (Dễ nhất)**
+
+1. Railway Dashboard → Service → **Variables**
+2. Thêm biến: `FORCE_SEED` = `true`
+3. **Restart** service (hoặc deploy lại)
+4. Xem logs để đảm bảo seed chạy
+5. **XÓA** biến `FORCE_SEED` (quan trọng!)
+6. Restart lại
+
+**Cách 2: Dùng Railway CLI**
+
+```bash
+# Cài Railway CLI nếu chưa có
+brew install railway
+# hoặc: npm i -g @railway/cli
+
+# Đăng nhập và link project
+railway login
+railway link
+
+# Chạy seed
+railway run node backend/database/seeds/seed.js
+```
+
 ## 📁 Cấu trúc lưu trữ
 
 Sau khi setup, dữ liệu sẽ được lưu vào volume:
@@ -52,7 +96,16 @@ Sau khi setup, dữ liệu sẽ được lưu vào volume:
 
 ## ✅ Kiểm tra
 
-Sau khi deploy, kiểm tra logs để đảm bảo volume được mount:
+### Cách xem logs trên Railway:
+
+1. Vào **Railway Dashboard** (railway.app)
+2. Chọn **Project** của bạn
+3. Click vào **Service** (app của bạn)
+4. Click tab **"Deployments"** 
+5. Click vào deployment mới nhất (có dấu ✓ xanh)
+6. Click tab **"View Logs"** hoặc **"Deploy Logs"**
+
+Trong logs, bạn sẽ thấy:
 
 ```
 📁 Storage paths:
@@ -62,6 +115,8 @@ Sau khi deploy, kiểm tra logs để đảm bảo volume được mount:
   - Logs: /data/logs
 📊 Database path: /data/database/app.db
 ```
+
+Nếu thấy `Volume: /data` thì volume đã được mount thành công!
 
 ## 🔄 Seed dữ liệu ban đầu (Nếu cần)
 
@@ -79,6 +134,38 @@ Hoặc tạm thời thay đổi Start Command:
 
 ## 💾 Backup
 
+### Cài đặt Railway CLI (nếu chưa có)
+
+```bash
+# macOS/Linux
+brew install railway
+
+# hoặc dùng npm
+npm i -g @railway/cli
+
+# Đăng nhập
+railway login
+```
+
+### Xem files trong volume
+
+```bash
+# Link project (chạy 1 lần đầu tiên)
+railway link
+
+# List files trong /data
+railway run ls -la /data
+
+# List files trong database folder
+railway run ls -la /data/database
+
+# List files trong storage folder
+railway run ls -la /data/storage/temp
+
+# Xem nội dung file
+railway run cat /data/database/app.db-wal
+```
+
 ### Manual backup qua Railway CLI
 
 ```bash
@@ -87,6 +174,22 @@ railway run cat /data/database/app.db > backup.db
 
 # Upload database
 railway run "cat > /data/database/app.db" < backup.db
+
+# Download toàn bộ storage folder
+railway run tar -czf - /data/storage > storage-backup.tar.gz
+
+# Upload storage folder
+railway run "tar -xzf - -C /" < storage-backup.tar.gz
+```
+
+### Xóa files cũ (nếu cần)
+
+```bash
+# Xóa files cũ hơn 30 ngày trong storage
+railway run find /data/storage/temp -type f -mtime +30 -delete
+
+# Xem dung lượng đang dùng
+railway run du -sh /data/*
 ```
 
 ### Tự động backup (Future)
